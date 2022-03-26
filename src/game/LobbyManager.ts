@@ -1,4 +1,5 @@
 import { Lobby } from './Lobby';
+import { Player } from './Player';
 import { randomGameCode } from './utils';
 
 export class LobbyManager {
@@ -10,13 +11,13 @@ export class LobbyManager {
 		LobbyManager._lobbies = value;
 	}
 
-	public static newLobby(_creatorId: number) {
+	public static newLobby(_creator: Player) {
 		let gameCode = randomGameCode();
 		while (this.lobbies.get(gameCode) != undefined)
 			gameCode = randomGameCode();
 
 		const newLobby = new Lobby(gameCode);
 		this.lobbies.set(gameCode, newLobby);
-		newLobby.playerJoin(_creatorId);
+		newLobby.playerJoin(_creator);
 	}
 }

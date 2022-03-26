@@ -18,6 +18,6 @@ export class ColorTile implements IColorTile {
 	constructor(_number: number, _suit: TileSuit) {
 		this.number = _number;
 		this.suit = _suit;
-		this.id = `${_number}${TileSuitToChar(_suit)}`;
+		this.id = `${TileSuitToChar(_suit)}${_number}`;
 	}
 }

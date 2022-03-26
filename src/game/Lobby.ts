@@ -1,19 +1,20 @@
 import { GameManager } from './GameManager';
-import { PlayerManager } from './PlayerManager';
+import { Player } from './Player';
+import { PlayerFactory } from './PlayerFactory';
 
 export class Lobby {
 	gameCode: number; //4 Digit game code
-	playerIds: number[] = [];
+	players: Player[] = [];
 	gameManager?: GameManager;
 
-	playerJoin(_id: number) {
+	playerJoin(_player: Player) {
 		if (this.gameManager != undefined) return;
-		this.playerIds.push(_id);
-		PlayerManager.onJoinLobby(_id, this.gameCode);
+		_player.gameId = this.gameCode;
+		this.players.push(_player);
 	}
 
 	startLobby() {
-		this.gameManager = new GameManager(this.playerIds);
+		this.gameManager = new GameManager(this.players);
 	}
 
 	constructor(_code: number) {

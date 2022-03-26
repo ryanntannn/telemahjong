@@ -1,4 +1,5 @@
-import { TileSuit, Wind } from './types';
+import { TilesDatabase } from './tiles/TilesDatabase';
+import { ITile, TileSuit, Wind } from './types';
 
 export function TileSuitToChar(_suit: TileSuit) {
 	switch (_suit) {
@@ -42,6 +43,10 @@ export function shuffle(array: any[]) {
 	}
 
 	return array;
+}
+
+export function tileIdToTiles(_tileIds: string[]): ITile[] {
+	return _tileIds.map((_id) => TilesDatabase.tiles.get(_id)!);
 }
 
 export function randomGameCode() {

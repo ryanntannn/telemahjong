@@ -4,12 +4,12 @@ import 'dotenv/config';
 import { TilesDatabase } from './game/tiles/TilesDatabase';
 import { GameManager } from './game/GameManager';
 import { LobbyManager } from './game/LobbyManager';
-import { PlayerManager } from './game/PlayerManager';
+import { PlayerFactory } from './game/PlayerFactory';
 
 new TilesDatabase();
 new LobbyManager();
 
-const bot: Telegraf<Context<Update>> = new Telegraf(
+export const bot: Telegraf<Context<Update>> = new Telegraf(
 	process.env.BOT_TOKEN as string
 );
 
@@ -25,15 +25,23 @@ bot.start((ctx) => {
 
 bot.action('start', (ctx) => {
 	const playerId = ctx.from!.id!;
-	if (PlayerManager.getPlayerLobby(playerId) != undefined)
-		return ctx.reply('Already in a lobby');
-	LobbyManager.newLobby(playerId);
-	const lobby = PlayerManager.getPlayerLobby(playerId)!;
-	lobby.playerJoin(-1);
-	lobby.playerJoin(-2);
-	lobby.playerJoin(-3);
+	const username = ctx.from?.username!;
+	const chatId = ctx.chat!.id;
+	const player = PlayerFactory.build(playerId, username, chatId);
+	if (player == undefined) return ctx.reply('Already in a lobby');
+	LobbyManager.newLobby(player!);
+	const lobby = PlayerFactory.getPlayerLobby(playerId)!;
+	lobby.playerJoin(PlayerFactory.build(-1, 'Bot 1', chatId)!);
+	lobby.playerJoin(PlayerFactory.build(-2, 'Bot 2', chatId)!);
+	lobby.playerJoin(PlayerFactory.build(-3, 'Bot 3', chatId)!);
 	lobby.startLobby();
-	return ctx.reply(`Lobby ${lobby.gameManager?.players[0].hand}`);
+});
+
+bot.action('test', (ctx) => {
+	const playerId = ctx.from!.id!;
+	const chatId = ctx.chat!.id;
+	const player = PlayerFactory.getPlayer(playerId);
+	player?.setHandMessage('Test');
 });
 
 process.once('SIGINT', () => bot.stop('SIGINT'));
