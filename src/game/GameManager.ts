@@ -1,9 +1,11 @@
 import { Deck } from './Deck';
 import { Player } from './Player';
+import { Wind } from './types';
 
 export class GameManager {
 	deck: Deck;
 	players: Player[];
+	wind: Wind = Wind.EAST;
 
 	startRound() {
 		this.distributeCards();
@@ -18,7 +20,7 @@ export class GameManager {
 		}
 	}
 
-	constructor(_playerIds: string[]) {
+	constructor(_playerIds: number[]) {
 		this.deck = new Deck();
 		this.players = _playerIds.map((_id) => new Player(_id));
 		this.startRound();

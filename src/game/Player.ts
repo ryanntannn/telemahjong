@@ -1,8 +1,8 @@
 export class Player {
-	id: string;
+	id: number;
 	hand: string[] = [];
 
-	constructor(_id: string) {
+	constructor(_id: number) {
 		this.id = _id;
 	}
 }

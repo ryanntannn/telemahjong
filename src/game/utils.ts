@@ -43,3 +43,7 @@ export function shuffle(array: any[]) {
 
 	return array;
 }
+
+export function randomGameCode() {
+	return Math.floor(1000 + Math.random() * 9000);
+}
