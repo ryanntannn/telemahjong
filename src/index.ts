@@ -1,16 +1,21 @@
 import { Context, Markup, Telegraf } from 'telegraf';
 import { Update } from 'typegram';
 import 'dotenv/config';
+import { TilesDatabase } from './game/tiles/TilesDatabase';
+import { GameManager } from './game/GameManager';
 
-const bot: Telegraf<Context<Update>> = new Telegraf(
-	process.env.BOT_TOKEN as string
-);
+new TilesDatabase();
+new GameManager(['1bob', '2larry', '3browns', '4joe']);
 
-bot.start((ctx) => {
-	ctx.reply('Hello ' + ctx.from.first_name + '!');
-});
+// const bot: Telegraf<Context<Update>> = new Telegraf(
+// 	process.env.BOT_TOKEN as string
+// );
 
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
+// bot.start((ctx) => {
+// 	ctx.reply('Hello ' + ctx.from.first_name + '!');
+// });
 
-bot.launch();
+// process.once('SIGINT', () => bot.stop('SIGINT'));
+// process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
+// bot.launch();
