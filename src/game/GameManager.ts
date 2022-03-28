@@ -9,44 +9,45 @@ export class GameManager {
 	thrownTiles: string[] = [];
 	wind: Wind = Wind.EAST;
 
-	startRound() {
+	private startRound() {
 		this.distributeCards();
 	}
 
-	generateTableMessage(): string {
+	private generateTableMessage(): string {
 		return `Thrown Tiles: ${this.thrownTiles}\n\n ${this.players.map(
 			(player) =>
-				`<b>${player.username}'s</b> shown tiles:\n ${player.shownTiles}\n\n`
+				`<b>${player.username}${
+					player.ready ? '' : '[Not Ready]'
+				}'s</b> shown tiles:\n ${player.shownTiles}\n\n`
 		)}`;
 	}
 
-	sendTableMessage(_msg: string) {
+	private sendTableMessage(_msg: string) {
 		this.players.forEach((player) => {
 			player.setTableMessage(_msg);
 		});
 	}
 
-	distributeCards() {
-		this.players[0].hand = this.deck.tiles.splice(0, 14);
-		this.players[0].hand.sort();
-		console.log(this.players[0].hand);
-		for (let i = 1; i <= 3; i++) {
-			this.players[i].hand = this.deck.tiles.splice(0, 13);
+	public updateTableMessage() {
+		this.sendTableMessage(this.generateTableMessage());
+	}
+
+	private distributeCards() {
+		for (let i = 0; i <= 3; i++) {
+			this.players[i].hand = this.deck.tiles.splice(0, i == 0 ? 14 : 13);
 			this.players[i].hand.sort();
 			console.log(this.players[i].hand);
 		}
-		this.sendTableMessage(this.generateTableMessage());
+		this.updateTableMessage();
 		this.players.forEach((player) => {
-			player.setHandMessage(
-				`${player.id.toString()} Starting Hand: ${player.hand.toString()}`,
-				Markup.inlineKeyboard([Markup.button.callback('Test', 'test')])
-			);
-		});
+			player.setHandMessage();
+		}); //update hand message
 	}
 
 	constructor(_players: Player[]) {
 		this.deck = new Deck();
 		this.players = _players;
+		this.players.forEach((player) => (player.gameManager = this));
 		this.startRound();
 	}
 }

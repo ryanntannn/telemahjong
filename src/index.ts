@@ -5,6 +5,7 @@ import { TilesDatabase } from './game/tiles/TilesDatabase';
 import { GameManager } from './game/GameManager';
 import { LobbyManager } from './game/LobbyManager';
 import { PlayerFactory } from './game/PlayerFactory';
+import { Test } from 'tslint';
 
 new TilesDatabase();
 new LobbyManager();
@@ -41,7 +42,15 @@ bot.action('test', (ctx) => {
 	const playerId = ctx.from!.id!;
 	const chatId = ctx.chat!.id;
 	const player = PlayerFactory.getPlayer(playerId);
-	player?.setHandMessage('Test');
+	player?.setActions([{ label: 'Au Au', action: () => {} }]);
+});
+
+bot.action(/AA[0-99]/, (ctx) => {
+	const playerId = ctx.from!.id!;
+	const chatId = ctx.chat!.id;
+	const player = PlayerFactory.getPlayer(playerId);
+	if (player == undefined) return;
+	player.handleAction(parseInt(ctx.match[0].substring(2)));
 });
 
 process.once('SIGINT', () => bot.stop('SIGINT'));
