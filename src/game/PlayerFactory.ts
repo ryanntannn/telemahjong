@@ -23,6 +23,10 @@ export class PlayerFactory {
 		return this._playerDataBase.get(_id);
 	}
 
+	public static hasPlayer(_id: number): boolean {
+		return this._playerDataBase.has(_id);
+	}
+
 	public static getPlayerLobby(_id: number): Lobby | undefined {
 		const gameId = this._playerDataBase.get(_id)?.gameId;
 		if (gameId == undefined) return undefined;

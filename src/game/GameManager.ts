@@ -47,7 +47,6 @@ export class GameManager {
 	constructor(_players: Player[]) {
 		this.deck = new Deck();
 		this.players = _players;
-		this.players.forEach((player) => (player.gameManager = this));
 		this.startRound();
 	}
 }

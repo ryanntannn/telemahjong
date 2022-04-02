@@ -2,7 +2,8 @@ import { Markup } from 'telegraf';
 import { InlineKeyboardMarkup } from 'telegraf/typings/core/types/typegram';
 import { ExtraReplyMessage } from 'telegraf/typings/telegram-types';
 import { bot } from '..';
-import { GameManager } from './GameManager';
+import { Lobby } from './Lobby';
+import { LobbyManager } from './LobbyManager';
 
 export type ActionMap = PlayerAction[];
 
@@ -16,12 +17,13 @@ export class Player {
 	hand: string[] = [];
 	gameId?: number;
 	chatId: number;
+	lobbyMessageId?: number;
 	handMesageId?: number;
 	tableMessageId?: number;
 	shownTiles: string[] = [];
 	username: string;
 	ready: boolean = false;
-	gameManager?: GameManager;
+	lobby?: Lobby;
 	private activeActions: ActionMap = [];
 
 	public async sendMessage(
@@ -52,7 +54,55 @@ export class Player {
 		);
 	}
 
+	public setReady() {
+		this.ready = true;
+		this;
+	}
+
+	public getLobbyActions(): Markup.Markup<InlineKeyboardMarkup> | null {
+		if (this.lobby?.creator.id != this.id) return null;
+		return Markup.inlineKeyboard(
+			this.activeActions.map((action, i) =>
+				Markup.button.callback(action.label, `AA${i}`)
+			)
+		);
+	}
+
+	public async setLobbyMessage(message: string) {
+		try {
+			if (this.lobby!.gameManager != undefined) return;
+			if (this.lobbyMessageId == undefined) {
+				console.log('test');
+				const { message_id } = await bot.telegram.sendMessage(
+					this.chatId,
+					message,
+					{
+						...this.getLobbyActions(),
+						parse_mode: 'HTML',
+					}
+				);
+				this.lobbyMessageId = message_id;
+				return;
+			}
+			await bot.telegram.editMessageText(
+				this.chatId,
+				this.lobbyMessageId,
+				undefined,
+				message
+			);
+			await bot.telegram.editMessageReplyMarkup(
+				this.chatId,
+				this.lobbyMessageId,
+				undefined,
+				this.getLobbyActions()?.reply_markup
+			);
+		} catch (err) {
+			return;
+		}
+	}
+
 	public async setHandMessage() {
+		if (this.lobby!.gameManager == undefined) return;
 		if (this.handMesageId == undefined) {
 			const { message_id } = await bot.telegram.sendMessage(
 				this.chatId,
@@ -84,6 +134,7 @@ export class Player {
 	}
 
 	public handleAction(_index: number) {
+		if (this.lobby!.gameManager == undefined) return;
 		console.log(
 			`${this.username} used ${this.activeActions[_index].label}`
 		);
@@ -91,16 +142,19 @@ export class Player {
 	}
 
 	public setActions(actions: PlayerAction[]) {
+		if (this.lobby!.gameManager == undefined) return;
 		this.activeActions = actions;
 		this.setHandMessage();
 	}
 
 	public addAction(...actions: PlayerAction[]) {
+		if (this.lobby!.gameManager == undefined) return;
 		this.activeActions.push(...actions);
 		this.setHandMessage();
 	}
 
 	public removeAction(...actions: PlayerAction[]) {
+		if (this.lobby!.gameManager == undefined) return;
 		actions.forEach((action) => {
 			const index = this.activeActions.indexOf(action, 0);
 			if (index > -1) {

@@ -11,13 +11,13 @@ export class LobbyManager {
 		LobbyManager._lobbies = value;
 	}
 
-	public static newLobby(_creator: Player) {
+	public static newLobby(_creator: Player): Lobby {
 		let gameCode = randomGameCode();
 		while (this.lobbies.get(gameCode) != undefined)
 			gameCode = randomGameCode();
 
-		const newLobby = new Lobby(gameCode);
+		const newLobby = new Lobby(gameCode, _creator);
 		this.lobbies.set(gameCode, newLobby);
-		newLobby.playerJoin(_creator);
+		return newLobby;
 	}
 }
